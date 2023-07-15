@@ -55,7 +55,7 @@ const listSchema = {
 
 
 // Routes here
-  app.get("/", function (req, res) {
+  app.get("/" + __dirname, function (req, res) {
     async function getItem() {
       let foundItems = await Item.find({});
       try {
