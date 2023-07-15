@@ -4,14 +4,28 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const _ = require("lodash");
-const env = require('dotenv').config();
+const env = require("dotenv").config();
+
 
 const app = express();
 
-app.set("view engine", "ejs");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
+app.set("view engine", "ejs");
+const PORT = process.env.PORT || 3000;
+
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGO_URI);
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+  } 
+  catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+}
+
 
 const itemsSchema = new mongoose.Schema({
   name: String,
@@ -21,11 +35,7 @@ const listSchema = {
   name: String,
   items: [itemsSchema],
 };
-async function run() {
-  await mongoose.connect(
-    "mongodb+srv://devmuaaz:Morris%40h0me@cluster0.q6p9bdn.mongodb.net/todolistDB",
-    { useNewUrlParser: true, useUnifiedTopology: true }
-  );
+
   const Item = mongoose.model("Item", itemsSchema);
   const List = mongoose.model("List", listSchema);
 
@@ -44,21 +54,23 @@ async function run() {
   const defaultItems = [item1, item2, item3];
 
 
-  app.get("", function (req, res) {
+// Routes here
+  app.get("/", function (req, res) {
     async function getItem() {
       let foundItems = await Item.find({});
       try {
         if (foundItems === 0) {
-         await Item.insertMany(defaultItems)
-            .then(function () {
-
-            })
+          await Item.insertMany(defaultItems)
+            .then(function () {})
             .catch(function (err) {
               console.log(err);
             });
-          res.redirect("");
+          res.redirect("/");
         } else {
-          res.render("/list.ejs", { listTitle: "Today", newListItems: foundItems });
+          res.render("/list.ejs", {
+            listTitle: "Today",
+            newListItems: foundItems,
+          });
         }
       } catch (err) {
         console.log(err);
@@ -69,8 +81,8 @@ async function run() {
 
   app.get("/:customListName", function (req, res) {
     const customListName = _.capitalize(req.params.customListName);
-      async function newPage() {
-        try {
+    async function newPage() {
+      try {
         let results = await List.findOne({ name: customListName });
         if (!results) {
           const list = new List({
@@ -88,10 +100,10 @@ async function run() {
       } catch (error) {
         console.log(error);
       }
-    newPage();
-  }
+      newPage();
+    }
   });
-  
+
   app.post("/", function (req, res) {
     const itemName = req.body.newItem;
     const listName = req.body.list;
@@ -148,14 +160,12 @@ async function run() {
   app.get("/about", function (req, res) {
     res.render("about");
   });
-}
-run();
 
-var port = process.env.PORT;
-if (port == null || port == "") {
-  port = 3000;
-}
 
-app.listen(port, function () {
-  console.log("Server started successfully");
-});
+  // Connection to db 
+connectDB()
+.then(() => {
+  app.listen(PORT, () => {
+      console.log("listening for requests");
+  })
+})
