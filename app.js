@@ -69,11 +69,6 @@ async function run() {
 
   app.get("/:customListName", function (req, res) {
     const customListName = _.capitalize(req.params.customListName);
-    if (customListName === "Favicon.ico") {
-      res.redirect("/");
-    }
-    else {
-
       async function newPage() {
         try {
         let results = await List.findOne({ name: customListName });
@@ -93,7 +88,6 @@ async function run() {
       } catch (error) {
         console.log(error);
       }
-    }
     newPage();
   }
   });
