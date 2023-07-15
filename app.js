@@ -55,7 +55,7 @@ const listSchema = {
 
 
 // Routes here
-  app.get("/" + __dirname, function (req, res) {
+  app.get("./views/list.ejs", function (req, res) {
     async function getItem() {
       let foundItems = await Item.find({});
       try {
@@ -67,7 +67,7 @@ const listSchema = {
             });
           res.redirect("/");
         } else {
-          res.render("/list.ejs", {
+          res.render("./views/list.ejs", {
             listTitle: "Today",
             newListItems: foundItems,
           });
