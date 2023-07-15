@@ -44,7 +44,7 @@ async function run() {
   const defaultItems = [item1, item2, item3];
 
 
-  app.get("/", function (req, res) {
+  app.get("", function (req, res) {
     async function getItem() {
       let foundItems = await Item.find({});
       try {
@@ -56,7 +56,7 @@ async function run() {
             .catch(function (err) {
               console.log(err);
             });
-          res.redirect("/");
+          res.redirect("");
         } else {
           res.render("/list.ejs", { listTitle: "Today", newListItems: foundItems });
         }
