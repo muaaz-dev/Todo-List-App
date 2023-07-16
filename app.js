@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const _ = require("lodash");
 const env = require("dotenv").config();
+const ejs = require("ejs");
 
 
 const app = express();
@@ -55,7 +56,7 @@ const listSchema = {
 
 
 // Routes here
-  app.get("./views/list.ejs", function (req, res) {
+  app.get("/", function (req, res) {
     async function getItem() {
       let foundItems = await Item.find({});
       try {
@@ -65,13 +66,16 @@ const listSchema = {
             .catch(function (err) {
               console.log(err);
             });
-          res.redirect("/");
-        } else {
-          res.render("./views/list.ejs", {
-            listTitle: "Today",
-            newListItems: foundItems,
-          });
+            res.redirect("/");
+          }
+          else {
+
         }
+        res.render("list", {
+          listTitle: "Today",
+          newListItems: foundItems,
+        });
+
       } catch (err) {
         console.log(err);
       }
@@ -100,8 +104,8 @@ const listSchema = {
       } catch (error) {
         console.log(error);
       }
-      newPage();
     }
+    newPage();
   });
 
   app.post("/", function (req, res) {
